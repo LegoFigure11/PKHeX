@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using static PKHeX.Core.GameVersion;
 
 namespace PKHeX.Core
@@ -17,6 +18,8 @@ namespace PKHeX.Core
         public abstract PersonalInfo PersonalInfo { get; }
         public virtual IReadOnlyList<ushort> ExtraBytes => Array.Empty<ushort>();
 
+        private static readonly GameStrings DefaultStrings = GameInfo.GetStrings(GameLanguage.DefaultLanguage);
+        private GameStrings Strings { get; set; } = DefaultStrings;
         // Internal Attributes set on creation
         public readonly byte[] Data; // Raw Storage
         public string? Identifier; // User or Form Custom Attribute
@@ -379,8 +382,9 @@ namespace PKHeX.Core
             get
             {
                 string form = Form > 0 ? $"-{Form:00}" : string.Empty;
-                string star = IsShiny ? " ★" : string.Empty;
-                return $"{Species:000}{form}{star} - {Nickname} - {Checksum:X4}{EncryptionConstant:X8}";
+                string star = ShinyXor == 0 ? " ■" : IsShiny ? " ★" : string.Empty;
+
+                return $"{Species:000}{form}{star} - {Strings.Species[Species]} - {Strings.Natures[Nature]} - {IV_HP}.{IV_ATK}.{IV_DEF}.{IV_SPA}.{IV_SPD}.{IV_SPE} - {(new Regex(@"[<>:""/\|?*]")).Replace(OT_Name, string.Empty)} - {DisplayTID} - {Strings.balllist[Ball]} - {Checksum:X4} - {PID:X8} - {EncryptionConstant:X8}";
             }
         }
 
